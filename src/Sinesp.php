@@ -15,7 +15,7 @@ class Sinesp
     public function buscar($placa, array $proxy = [])
     {
         if ($proxy) {
-            $this->proxy($proxy['ip'], $proxy['porta']);
+            $this->proxy($proxy['ip'], $proxy['porta'], $proxy['usuario'], $proxy['senha']);
         }
 
         $this->setUp($placa);
@@ -27,9 +27,9 @@ class Sinesp
         return $this->dados;
     }
 
-    public function proxy($ip, $porta)
+    public function proxy($ip, $porta, $usuario, $senha)
     {
-        $this->proxy = $ip . ':' . $porta;
+        $this->proxy = $ip . ':' . $porta . '|' . $usuario . ':' . $senha;        
     }
 
     public function __get($name)
@@ -66,7 +66,10 @@ class Sinesp
         curl_setopt($ch, CURLOPT_URL, $this->url);
 
         if ($this->proxy) {
-            curl_setopt($ch, CURLOPT_PROXY, $this->proxy);
+            $proxy = split('|', $this->proxy)
+            curl_setopt($ch, CURLOPT_PROXY, $proxy[0]);
+            if($proxy[1] != ":")
+                curl_setopt($ch, CURLOPT_PROXYUSERPWD, $proxy[1]);
         }
 
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
